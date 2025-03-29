@@ -1,14 +1,13 @@
-use std::{
-    fs,
-    io::{prelude::*, BufReader},
-    net::{TcpListener, TcpStream},
-};
+use std::fs;
+use std::io::{prelude::*, BufReader};
+use std::net::{TcpListener, TcpStream};
+
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    println!("Server in ascolto su http://127.0.0.1:7878");
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-
         handle_connection(stream);
     }
 }
@@ -17,18 +16,30 @@ fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
 
-    let get_index = b"GET / HTTP/1.1\r\n";
-    let get_jsx = b"GET /index.jsx HTTP/1.1\r\n";
+    let request = String::from_utf8_lossy(&buffer[..]);
+    let first_line = request.lines().next().unwrap_or("");
+    let path = first_line.split_whitespace().nth(1).unwrap_or("/");
 
-    let (status_line, filename, content_type) = if buffer.starts_with(get_index) {
-        ("HTTP/1.1 200 OK", "index.html", "text/html")
-    } else if buffer.starts_with(get_jsx) {
-        ("HTTP/1.1 200 OK", "index.jsx", "text/babel")
+    let mut filename = String::from("public");
+    let (status_line, content_type) = if path == "/" {
+        filename.push_str("/index.html");
+        ("HTTP/1.1 200 OK", "text/html")
+    } else if path.ends_with(".js") {
+        filename.push_str(path);
+        ("HTTP/1.1 200 OK", "application/javascript")
     } else {
-        ("HTTP/1.1 404 NOT FOUND", "public/404.html", "text/html")
+        filename.push_str("/404.html");
+        ("HTTP/1.1 404 NOT FOUND", "text/html")
     };
 
-    let contents = fs::read_to_string(filename).unwrap_or_else(|_| String::from("File non trovato"));
+    // 🔥 Aggiungiamo questo per controllare il percorso
+    println!("📂 Tentativo di apertura file: {}", filename);
+
+    let contents = fs::read_to_string(filename.as_str()).unwrap_or_else(|_| {
+        println!("❌ File non trovato: {}", filename); // Stampa errore se non lo trova
+        String::from("File non trovato")
+    });
+
     let response = format!(
         "{}\r\nContent-Type: {}; charset=UTF-8\r\n\r\n{}",
         status_line, content_type, contents
