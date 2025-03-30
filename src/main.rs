@@ -1,6 +1,8 @@
-use std::fs;
-use std::io::{prelude::*, BufReader};
+mod resolver;
+
+use std::io::{prelude::*};
 use std::net::{TcpListener, TcpStream};
+
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
@@ -17,42 +19,14 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).unwrap();
 
     let request = String::from_utf8_lossy(&buffer[..]);
-    let first_line = request.lines().next().unwrap_or("");
-    let path = first_line.split_whitespace().nth(1).unwrap_or("/");
-
-    let mut filename = String::from("public");
-    let (status_line, content_type) = match path {
-        "/" => {
-            filename.push_str("/index.html");
-            ("HTTP/1.1 200 OK", "text/html")
-        }
-        "/home" =>{
-            filename.push_str("/home.html");
-            ("HTTP/1.1 200 OK", "text/html")
-        }
-        p if p.ends_with(".js") => {
-            filename.push_str(p);
-            ("HTTP/1.1 200 OK", "application/javascript")
-        }
-        _ => {
-            filename.push_str("/404.html");
-            ("HTTP/1.1 404 NOT FOUND", "text/html")
-        }
-    };
 
 
-    println!("📂 Tentativo di apertura file: {}", filename);
+    let first_line = request.lines().next().unwrap_or("").to_string();
+    let path = first_line.split_whitespace().nth(1).unwrap_or("/").to_string();
 
-    let contents = fs::read_to_string(filename.as_str()).unwrap_or_else(|_| {
-        println!(" File non trovato: {}", filename); // Stampa errore se non lo trova
-        String::from("File non trovato")
-    });
+    let filename = String::from("public");
 
-    let response = format!(
-        "{}\r\nContent-Type: {}; charset=UTF-8\r\n\r\n{}",
-        status_line, content_type, contents
-    );
-
-    stream.write_all(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
+    resolver::resolve_url(&*path, filename, stream);
 }
+
+
