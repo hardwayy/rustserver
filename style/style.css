@@ -1,0 +1,10 @@
+
+@import "tailwindcss";
+@import "tailwindcss/utilities";
+
+
+@theme {
+    --color-primary: #1da1f2;
+    --font-sans: "Helvetica Neue", sans-serif;
+
+}

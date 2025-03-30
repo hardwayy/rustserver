@@ -1,3 +1,4 @@
+import "../style/style.css";
 function Home(){
     return(
         <>

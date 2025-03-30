@@ -1,26 +1,34 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-    entry: './jsx/home.js', // Punto di ingresso del codice JavaScript
+    entry: "./jsx/index.js", // Punto di ingresso del codice JavaScript
     output: {
-        path: path.resolve(__dirname, 'public'), // Cartella di uscita (deve essere 'public' nel tuo caso)
-        filename: 'compiledhome.js',  // Il nome del file di output
+        path: path.resolve(__dirname, "public"), // Cartella di uscita
+        filename: "bundle.js", // bundle per index, compiledhome per home
     },
     module: {
         rules: [
             {
-                test: /\.js$/,  // Rileva i file con estensione .js
-                exclude: /node_modules/,  // Non applicare a node_modules
+                test: /\.css$/, // Rileva i file con estensione .css
+                use: [
+                    "style-loader", // Inserisce il CSS nel DOM
+                    "css-loader", // Interpreta le @import e le url()
+                    "postcss-loader", // Applica le trasformazioni PostCSS
+                ],
+            },
+            {
+                test: /\.js$/, // Rileva i file con estensione .js
+                exclude: /node_modules/, // Esclude la cartella node_modules
                 use: {
-                    loader: 'babel-loader',  // Usa Babel per compilare il codice
+                    loader: "babel-loader", // Usa Babel per compilare il codice
                     options: {
-                        presets: ['@babel/preset-env', '@babel/preset-react'],  // Usa preset per ES6 e React
+                        presets: ["@babel/preset-env", "@babel/preset-react"], // Preset per ES6 e React
                     },
                 },
             },
         ],
     },
     resolve: {
-        extensions: ['.js'], // Rileva solo file .js
+        extensions: [".js"], // Rileva solo file .js
     },
 };

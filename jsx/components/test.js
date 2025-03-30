@@ -1,7 +1,15 @@
 function Test() {
+
+    function clicked(){
+        alert('clicked');
+    }
+
     return (
         <>
-            <h1>!!!!!!!!!!!!!!!!!</h1>
+            <div>
+                <button id={"testBut"} onClick={clicked} className="rounded-lg">Click me!</button>
+            </div>
+
         </>
     );
 }
