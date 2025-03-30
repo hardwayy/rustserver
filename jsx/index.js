@@ -1,5 +1,5 @@
-import Test from './test.js';
-import Component from './component.js';
+import Test from './components/test.js';
+import Component from './components/component.js';
 function Index() {
     return (
         <>

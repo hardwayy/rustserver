@@ -1,10 +1,10 @@
 const path = require('path');
 
 module.exports = {
-    entry: './jsx/index.js', // Punto di ingresso del codice JavaScript
+    entry: './jsx/home.js', // Punto di ingresso del codice JavaScript
     output: {
         path: path.resolve(__dirname, 'public'), // Cartella di uscita (deve essere 'public' nel tuo caso)
-        filename: 'bundle.js',  // Il nome del file di output
+        filename: 'compiledhome.js',  // Il nome del file di output
     },
     module: {
         rules: [

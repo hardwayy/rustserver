@@ -21,22 +21,30 @@ fn handle_connection(mut stream: TcpStream) {
     let path = first_line.split_whitespace().nth(1).unwrap_or("/");
 
     let mut filename = String::from("public");
-    let (status_line, content_type) = if path == "/" {
-        filename.push_str("/index.html");
-        ("HTTP/1.1 200 OK", "text/html")
-    } else if path.ends_with(".js") {
-        filename.push_str(path);
-        ("HTTP/1.1 200 OK", "application/javascript")
-    } else {
-        filename.push_str("/404.html");
-        ("HTTP/1.1 404 NOT FOUND", "text/html")
+    let (status_line, content_type) = match path {
+        "/" => {
+            filename.push_str("/index.html");
+            ("HTTP/1.1 200 OK", "text/html")
+        }
+        "/home" =>{
+            filename.push_str("/home.html");
+            ("HTTP/1.1 200 OK", "text/html")
+        }
+        p if p.ends_with(".js") => {
+            filename.push_str(p);
+            ("HTTP/1.1 200 OK", "application/javascript")
+        }
+        _ => {
+            filename.push_str("/404.html");
+            ("HTTP/1.1 404 NOT FOUND", "text/html")
+        }
     };
 
-    // 🔥 Aggiungiamo questo per controllare il percorso
+
     println!("📂 Tentativo di apertura file: {}", filename);
 
     let contents = fs::read_to_string(filename.as_str()).unwrap_or_else(|_| {
-        println!("❌ File non trovato: {}", filename); // Stampa errore se non lo trova
+        println!(" File non trovato: {}", filename); // Stampa errore se non lo trova
         String::from("File non trovato")
     });
 
